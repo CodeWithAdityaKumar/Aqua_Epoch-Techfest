@@ -58,17 +58,19 @@ test('default view has a short assessment and limitation; raw evidence is in clo
   assert.doesNotMatch(visibleText(parent), /Original certification warning/);
 });
 
-test('quick classification and class-one abstention never show a safe headline', () => {
-  for (const [response, mode] of [
-    [classification, 'quick'],
-    [{ ...classification, assessment: 'insufficient_evidence' }, 'full'],
-  ]) {
-    const parent = render(response, { ...snapshot, mode });
-    assert.equal(parent.querySelector('.result-summary h3').textContent, 'More readings needed');
-    assert.ok(parent.querySelector('.result-summary.caution'));
-    assert.doesNotMatch(visibleText(parent), /predicts safe|Raw model label/);
-    assert.equal(parent.querySelectorAll('.result-summary p').length, 1);
-  }
+test('quick classification shows the model signal while keeping the caution', () => {
+  const quick = render(classification, { ...snapshot, mode: 'quick' });
+  assert.equal(quick.querySelector('.result-summary h3').textContent, 'Quick model signal: predicts safe');
+  assert.ok(quick.querySelector('.result-summary.caution'));
+  assert.match(visibleText(quick), /predicts safe/);
+  assert.equal(quick.querySelectorAll('.result-summary p').length, 1);
+
+  const abstained = render({ ...classification, assessment: 'insufficient_evidence' }, { ...snapshot, mode: 'full' });
+  assert.equal(abstained.querySelector('.result-summary h3').textContent, 'More readings needed');
+  assert.ok(abstained.querySelector('.result-summary.caution'));
+  assert.doesNotMatch(visibleText(abstained), /predicts safe|Raw model label/);
+  assert.equal(abstained.querySelectorAll('.result-summary p').length, 1);
+
   const concern = render({ ...classification, assessment: 'predicted_unsafe', class_id: 0 });
   assert.equal(concern.querySelector('.result-summary h3').textContent, 'Model flags a concern');
   assert.ok(concern.querySelector('.result-summary.concern'));

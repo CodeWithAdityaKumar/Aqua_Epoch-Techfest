@@ -104,6 +104,8 @@ export function createApp(document, { fetchImpl = globalThis.fetch, confirm = me
     $('fields').setAttribute('aria-busy', 'true');
     $('mode-help').textContent = task() === 'regression'
       ? 'Estimated pH has limited reliability; it is not a lab measurement.'
+      : task() === 'combined' && mode() === 'full'
+        ? 'Measured pH is optional. Leave it blank or select Not measured to estimate pH.'
       : mode() === 'quick' ? 'Quick check cannot confirm drinking safety.'
         : 'More readings still cannot confirm drinking safety.';
     let features;
@@ -112,7 +114,8 @@ export function createApp(document, { fetchImpl = globalThis.fetch, confirm = me
     features.forEach((field, index) => {
       const id = `measurement-${index}`;
       const group = element(document, 'div', null, 'field');
-      const names = { TDS: 'TDS · total dissolved solids', Turbidity: 'Turbidity · cloudiness', Organic_carbon: 'Organic carbon', Trihalomethanes: 'Trihalomethanes', pH: 'Measured pH' };
+      const combinedPHOptional = task() === 'combined' && mode() === 'full' && field.name === 'pH';
+      const names = { TDS: 'TDS · total dissolved solids', Turbidity: 'Turbidity · cloudiness', Organic_carbon: 'Organic carbon', Trihalomethanes: 'Trihalomethanes', pH: combinedPHOptional ? 'Measured pH · optional' : 'Measured pH' };
       const label = element(document, 'label', names[field.name] || field.name.replaceAll('_', ' '));
       label.htmlFor = id;
       const helpDetails = element(document, 'details', null, 'field-help');
@@ -128,7 +131,7 @@ export function createApp(document, { fetchImpl = globalThis.fetch, confirm = me
       input.max = String(field.engineering_bounds[1]);
       input.id = id;
       input.name = field.name;
-      input.required = field.required === true;
+      input.required = field.required === true && !combinedPHOptional;
       input.autocomplete = 'off';
       input.setAttribute('aria-describedby', `${help.id} ${id}-error`);
       const missingLabel = element(document, 'label', null, 'check-label');
@@ -143,7 +146,7 @@ export function createApp(document, { fetchImpl = globalThis.fetch, confirm = me
       input.value = old?.value ?? '';
       missing.checked = !!old?.missing && field.nullable === true;
       input.disabled = missing.checked;
-      input.required = field.required === true && !missing.checked;
+        input.required = field.required === true && !missing.checked && !combinedPHOptional;
       const error = element(document, 'p', null, 'field-error');
       error.id = `${id}-error`;
       input.addEventListener('input', () => invalidate({ editing: true }));
@@ -200,7 +203,14 @@ export function createApp(document, { fetchImpl = globalThis.fetch, confirm = me
     if (refreshing || !state.ready) { showErrors({ _form: state.message }, 'Inference is unavailable.'); return; }
     let inputs;
     try {
-      inputs = serializeFields(featuresFor(metadata, task(), mode()), readEntries(), task() === 'combined' ? featuresFor(metadata, 'regression', mode()) : null);
+      const entries = readEntries();
+      // In the combined full flow, an empty pH is an intentional omission:
+      // the regression model estimates it and the classifier handles null via
+      // its trained imputation pipeline. Other blank fields remain errors.
+      if (task() === 'combined' && mode() === 'full' && entries.pH && !entries.pH.missing && entries.pH.value.trim() === '') {
+        entries.pH = { ...entries.pH, missing: true };
+      }
+      inputs = serializeFields(featuresFor(metadata, task(), mode()), entries, task() === 'combined' ? featuresFor(metadata, 'regression', mode()) : null);
     } catch (error) {
       showErrors(error instanceof ValidationError ? error.errors : { _form: error.message });
       return;

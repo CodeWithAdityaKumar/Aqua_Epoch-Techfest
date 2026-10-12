@@ -42,9 +42,12 @@ test('assessment prioritizes limited quick mode and uses API route contracts', (
 test('result summary keeps quick and unavailable evidence visibly cautious', () => {
   const quick = resultSummary({ classification: { assessment: 'predicted_safe', model_label: 'safe' } }, { task: 'combined', mode: 'quick' });
   assert.equal(quick.style, 'caution');
-  assert.equal(quick.title, 'More readings needed');
+  assert.equal(quick.title, 'Quick model signal: predicts safe');
   assert.equal(quick.details.length, 1);
-  assert.match(quick.details[0], /add a full set of measurements/);
+  assert.match(quick.details[0], /limited screening/);
+
+  const full = resultSummary({ classification: { assessment: 'insufficient_evidence', model_label: 'safe' } }, { task: 'combined', mode: 'full' });
+  assert.equal(full.title, 'More readings needed');
 
   const regression = resultSummary({ estimate: 7.2 }, { task: 'regression', mode: 'full' });
   assert.equal(regression.style, 'caution');

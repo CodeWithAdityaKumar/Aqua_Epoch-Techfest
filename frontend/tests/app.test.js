@@ -90,6 +90,7 @@ test('shared readings and Not measured survive task/mode switches; new fields st
   assert.equal(f.input('Turbidity').value, '0');
   assert.equal(f.input('Hardness').disabled, true);
   assert.equal(f.input('pH').value, '');
+  assert.equal(f.input('pH').required, false);
   assert.equal(f.input('Conductivity').value, '');
   assert.equal(f.document.querySelectorAll('#fields input[type="number"]').length, full.length);
   f.enter('pH', '7');
@@ -141,6 +142,22 @@ test('all-null and pH-only combined inputs cannot be submitted', async t => {
   await f.app.submit();
   assert.match(f.$('form-errors').textContent, /measured pH alone/);
   assert.equal(f.calls.filter(call => call.method === 'POST').length, 0);
+});
+
+test('combined full flow estimates pH when it is left blank', async t => {
+  const f = fixture(t);
+  await f.app.start();
+  f.change('mode', 'full');
+  f.enter('TDS', '123');
+  f.missing('Turbidity');
+  f.missing('Hardness');
+  f.missing('Conductivity');
+  await f.app.submit();
+  const posted = f.calls.find(call => call.method === 'POST');
+  assert.equal(posted.path, '/predict/full');
+  assert.equal(JSON.parse(posted.body).pH, null);
+  assert.equal(f.$('form-errors').hidden, true);
+  assert.equal(f.$('live-results').hidden, false);
 });
 
 test('examples are labelled, edits retain provenance, and Clear resets readings and opt-in', async t => {

@@ -123,14 +123,20 @@ export function resultSummary(response, snapshot) {
     return [{ text: `${risk.text}${fields.length ? ` (${fields.join(', ')})` : ''}.`, style: risk.style }];
   });
   const details = [];
+  const quickSignal = snapshot.mode === 'quick' && classification?.model_label;
   if (assessment?.text === 'More readings needed') {
-    if (snapshot.mode === 'quick') details.push('Quick mode uses too few readings; add a full set of measurements.');
+    if (quickSignal === 'safe') details.push('Quick model signal only — limited screening; confirm with detailed readings or a laboratory test.');
+    else if (quickSignal === 'unsafe') details.push('Quick model signal flags a concern — confirm with detailed readings or a laboratory test.');
+    else if (snapshot.mode === 'quick') details.push('Quick check is limited screening; confirm with detailed readings or a laboratory test.');
     else details.push(risks.shift()?.text || 'The evidence is incomplete; collect a full set of readings and confirm with laboratory testing.');
   }
 
+  const quickTitle = quickSignal === 'safe' ? 'Quick model signal: predicts safe'
+    : quickSignal === 'unsafe' ? 'Quick model signal: flags a concern' : null;
+
   return {
-    title: assessment?.text || (snapshot.task === 'regression' ? 'Estimated pH' : 'Assessment unavailable'),
-    style: assessment?.style || 'caution',
+    title: quickTitle || assessment?.text || (snapshot.task === 'regression' ? 'Estimated pH' : 'Assessment unavailable'),
+    style: quickTitle ? (quickSignal === 'unsafe' ? 'concern' : 'caution') : assessment?.style || 'caution',
     details,
     risks,
   };
