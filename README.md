@@ -126,6 +126,126 @@ It does not create a public deployment/tunnel. Both notebooks have been locally
 executed in reuse mode; real evaluation/promotion was verified through the CLI.
 Google-hosted execution itself has not been verified in your account.
 
+### Colab + Cloudflare public demo link
+
+The repository can remain private. In Colab, add a fine-grained GitHub token as
+a Colab Secret named `GITHUB_TOKEN` with **Contents: Read-only** access to this
+repository. Do not paste the token into a notebook cell or commit it. Then run
+these cells from a fresh Colab runtime:
+
+```python
+# Clone the private repository without putting the token in the clone URL.
+from google.colab import userdata
+from pathlib import Path
+import os, stat, subprocess
+
+token = userdata.get("GITHUB_TOKEN")
+assert token, "Add GITHUB_TOKEN in Colab Secrets first."
+os.environ["GITHUB_TOKEN"] = token
+
+askpass = Path("/tmp/git-askpass.sh")
+askpass.write_text("""#!/bin/sh
+case \"$1\" in
+  *Username*) printf '%s\\n' 'x-access-token' ;;
+  *) printf '%s\\n' \"$GITHUB_TOKEN\" ;;
+esac
+""")
+askpass.chmod(stat.S_IRWXU)
+env = os.environ.copy()
+env.update({"GIT_ASKPASS": str(askpass), "GIT_TERMINAL_PROMPT": "0"})
+
+repo = Path("/content/Aqua_Epoch")
+if not repo.exists():
+    subprocess.run([
+        "git", "clone",
+        "https://github.com/CodeWithAdityaKumar/Aqua_Epoch-Techfest.git",
+        str(repo),
+    ], env=env, check=True)
+```
+
+```python
+# Install the serving dependencies matching the promoted joblib release.
+%cd /content/Aqua_Epoch
+!python -m pip install -q -r backend/requirements.txt -r artifacts/phase3/requirements-serving.txt
+!python -m pip check
+```
+
+```python
+# Start the loopback-only Aqua Epoch server inside the Colab runtime.
+import subprocess, time, requests
+
+server = subprocess.Popen([
+    "python", "-m", "backend.demo",
+    "--host", "127.0.0.1", "--port", "8000",
+], cwd="/content/Aqua_Epoch", stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
+
+for _ in range(30):
+    try:
+        health = requests.get("http://127.0.0.1:8000/health", timeout=2)
+        if health.ok:
+            print(health.json())
+            break
+    except requests.RequestException:
+        pass
+    time.sleep(1)
+else:
+    raise RuntimeError("Aqua Epoch server did not become ready")
+```
+
+Install and start a **temporary Cloudflare Quick Tunnel**. It does not require
+a Cloudflare account or custom domain, and prints a public HTTPS URL. The URL
+changes when the Colab runtime restarts and stops when the runtime/process ends.
+
+```python
+!wget -q https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64 -O /usr/local/bin/cloudflared
+!chmod +x /usr/local/bin/cloudflared
+```
+
+```python
+import re, subprocess, time
+from pathlib import Path
+
+log_path = Path("/tmp/cloudflared.log")
+log = log_path.open("w")
+cloudflared = subprocess.Popen([
+    "cloudflared", "tunnel", "--url", "http://127.0.0.1:8000", "--no-autoupdate",
+], stdout=log, stderr=subprocess.STDOUT)
+
+public_url = None
+for _ in range(30):
+    time.sleep(1)
+    text = log_path.read_text(errors="ignore")
+    match = re.search(r"https://[a-z0-9-]+\.trycloudflare\.com", text)
+    if match:
+        public_url = match.group(0)
+        break
+if not public_url:
+    raise RuntimeError(log_path.read_text(errors="ignore"))
+print("LIVE URL:", public_url)
+```
+
+Open the printed `LIVE URL` in a browser. The frontend is mounted at `/`, so
+no extra path is needed. For a stable hostname such as `water.example.com`,
+create a named Cloudflare Tunnel in Cloudflare Zero Trust, route its Public
+Hostname to `http://127.0.0.1:8000`, save the tunnel token as a Colab Secret
+named `CLOUDFLARE_TUNNEL_TOKEN`, and replace the Quick Tunnel cell with:
+
+```python
+from google.colab import userdata
+import subprocess
+
+cloudflared = subprocess.Popen([
+    "cloudflared", "tunnel", "run", "--token",
+    userdata.get("CLOUDFLARE_TUNNEL_TOKEN"),
+], stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
+print("Open the Public Hostname configured in Cloudflare Zero Trust.")
+```
+
+This service has unauthenticated demo/history routes. Do not enter personal or
+real laboratory data, keep **Save history** off for a public Quick Tunnel, and
+use Cloudflare Access in front of a named tunnel if the link must be restricted.
+The app remains a competition demo, not drinking-water certification.
+
 ## Current backend — API v2
 
 ```bash
