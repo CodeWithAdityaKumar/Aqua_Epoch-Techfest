@@ -1,0 +1,28 @@
+{
+  "version": 3,
+  "sha256": "f70c8147ee3c33481871ca7061cf2193e963a22f13fde7dd9ebb0fcd022c12a0",
+  "filename": "9f2f652e-735e-4aa5-98a4-e4c4bd6f0a52.pdf",
+  "pageCount": 2,
+  "textPages": 2,
+  "textBudgetExhausted": false,
+  "pagesWithoutText": [],
+  "renderedPages": [
+    {
+      "page": 1,
+      "width": 1107,
+      "height": 1567,
+      "bytes": 311248,
+      "mime": "image/jpeg",
+      "fileName": "page-001.jpg"
+    },
+    {
+      "page": 2,
+      "width": 1107,
+      "height": 1567,
+      "bytes": 324815,
+      "mime": "image/jpeg",
+      "fileName": "page-002.jpg"
+    }
+  ],
+  "renderBudgetExhausted": false
+}
