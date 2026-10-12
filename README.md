@@ -163,19 +163,37 @@ if not repo.exists():
     ], env=env, check=True)
 ```
 
-```python
-# Install the serving dependencies matching the promoted joblib release.
-%cd /content/Aqua_Epoch
-!python -m pip install -q -r backend/requirements.txt -r artifacts/phase3/requirements-serving.txt
-!python -m pip install -q jedi  # Colab's preinstalled IPython expects this.
-```
-
-If the clone predates the `pandas<4` serving-requirement fix, install the exact
-serving stack separately instead of combining the old files:
+Colab already has packages such as `google-colab`, `numba`, and IPython
+installed. The promoted release intentionally pins newer `numpy`/`pandas`
+versions, so install Aqua Epoch in an isolated virtual environment rather than
+modifying Colab's system environment:
 
 ```python
-!python -m pip install -q -r artifacts/phase3/requirements-serving.txt
-!python -m pip install -q "fastapi>=0.110,<1" "pydantic>=2,<3" "uvicorn[standard]>=0.27,<1" jedi
+import subprocess
+from pathlib import Path
+
+repo = Path("/content/Aqua_Epoch")
+venv = Path("/content/aqua-epoch-venv")
+
+if not venv.exists():
+    subprocess.run(["python", "-m", "venv", str(venv)], check=True)
+
+python = str(venv / "bin" / "python")
+
+# The exact release stack is isolated from Colab's preinstalled packages.
+subprocess.run([
+    python, "-m", "pip", "install", "-q",
+    "-r", str(repo / "artifacts/phase3/requirements-serving.txt"),
+], check=True)
+
+# Install only the web-serving layer separately. This also works with an older
+# clone whose backend/requirements.txt still says pandas<3.
+subprocess.run([
+    python, "-m", "pip", "install", "-q",
+    "fastapi>=0.110,<1", "pydantic>=2,<3", "uvicorn[standard]>=0.27,<1",
+], check=True)
+
+print("Aqua Epoch environment ready:", python)
 ```
 
 ```python
@@ -183,9 +201,9 @@ serving stack separately instead of combining the old files:
 import subprocess, time, requests
 
 server = subprocess.Popen([
-    "python", "-m", "backend.demo",
+    python, "-m", "backend.demo",
     "--host", "127.0.0.1", "--port", "8000",
-], cwd="/content/Aqua_Epoch", stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
+], cwd=str(repo), stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
 
 for _ in range(30):
     try:
