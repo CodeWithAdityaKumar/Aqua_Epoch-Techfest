@@ -1,0 +1,7 @@
+{
+  "name": "aqua-epoch-frontend-tests",
+  "private": true,
+  "type": "module",
+  "scripts": { "test": "node --test tests/*.test.js" },
+  "devDependencies": { "jsdom": "^26.1.0" }
+}

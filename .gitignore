@@ -1,0 +1,17 @@
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ipynb_checkpoints/
+.env
+.env.*
+!.env.example
+.opencode/omnirush/
+.local/
+node_modules/
+# Generated experiment models/evidence can be regenerated from the notebook.
+# Do not push bulky intermediate models; select final deployment artifacts later.
+reports/*/candidates/
+reports/*/results.json
+reports/*/split_indices.json

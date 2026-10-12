@@ -1,0 +1,124 @@
+{
+  "status": "passed",
+  "protocol": {
+    "transport": "HTTP over loopback TCP to an actual uvicorn server in a local thread",
+    "scope": "Single process; sequential requests; not concurrency, internet latency or a production SLA",
+    "timing": "Client request through response JSON decoding; excludes request encoding and direct-pipeline parity computation",
+    "samples_per_endpoint": 30,
+    "warmup_per_endpoint": 5,
+    "inputs": "First physically admissible complete full-classifier holdout rows; selected without labels; reused across endpoints",
+    "interpretation": "Integration/latency only, not new unbiased ML performance evidence"
+  },
+  "runtime": {
+    "python": "3.12.3",
+    "numpy": "2.5.4",
+    "pandas": "3.0.6",
+    "sklearn": "1.9.1",
+    "joblib": "1.6.0",
+    "platform": "Linux-6.17.0-35-generic-x86_64-with-glibc2.39",
+    "uvicorn": "0.54.0"
+  },
+  "dataset_sha256": "f536b0e324783a187c20df684661bc68ef024b8994144db0e10e3f8e55640bbf",
+  "routes": {
+    "/classify/full": {
+      "requests": 30,
+      "http_200": 30,
+      "direct_pipeline_parity": true,
+      "median_ms": 54.89169100019353,
+      "p95_ms": 81.16519260029234,
+      "min_ms": 36.168348999126465,
+      "max_ms": 93.28242900119221
+    },
+    "/classify/quick": {
+      "requests": 30,
+      "http_200": 30,
+      "direct_pipeline_parity": true,
+      "median_ms": 56.80015249981807,
+      "p95_ms": 110.47425214865142,
+      "min_ms": 34.79020600025251,
+      "max_ms": 119.55905099966913
+    },
+    "/ph/full": {
+      "requests": 30,
+      "http_200": 30,
+      "direct_pipeline_parity": true,
+      "median_ms": 33.09192950018769,
+      "p95_ms": 91.34448704999159,
+      "min_ms": 26.47473900105979,
+      "max_ms": 105.4023889992095
+    },
+    "/ph/quick": {
+      "requests": 30,
+      "http_200": 30,
+      "direct_pipeline_parity": true,
+      "median_ms": 19.85880450138211,
+      "p95_ms": 29.09066275060467,
+      "min_ms": 17.223987000761554,
+      "max_ms": 37.98772899972391
+    },
+    "/predict/full": {
+      "requests": 30,
+      "http_200": 30,
+      "direct_pipeline_parity": true,
+      "median_ms": 61.53389749943017,
+      "p95_ms": 89.53799234914186,
+      "min_ms": 51.03747000066505,
+      "max_ms": 90.64855199903832
+    },
+    "/predict/quick": {
+      "requests": 30,
+      "http_200": 30,
+      "direct_pipeline_parity": true,
+      "median_ms": 46.67653449996578,
+      "p95_ms": 68.24385005074873,
+      "min_ms": 42.4888910001755,
+      "max_ms": 71.83030499982124
+    }
+  },
+  "boundary_checks": {
+    "boolean": 422,
+    "numeric_string": 422,
+    "omitted_field": 422,
+    "negative": 422,
+    "null_all": 422,
+    "ph_target_as_input": 422,
+    "nonfinite": 422,
+    "malformed_json": 422,
+    "missing_ph_abstains": true,
+    "out_of_range_abstains": true
+  },
+  "release_id": "d92c7561-4a48-44d5-8c51-339c743a452f",
+  "cold_health_ms": 399.11449499959417,
+  "source_row_ids": [
+    13911,
+    22569,
+    23372,
+    17220,
+    7066,
+    227,
+    7387,
+    5208,
+    13127,
+    12974,
+    8214,
+    21233,
+    23920,
+    20189,
+    13544,
+    3670,
+    6800,
+    13154,
+    8606,
+    23869,
+    18281,
+    22575,
+    3355,
+    1789,
+    23169,
+    18832,
+    21213,
+    14936,
+    22221,
+    1632
+  ]
+}

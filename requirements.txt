@@ -1,0 +1,4 @@
+# Shared local/Colab runtime. Retrain artifacts in the environment that serves them.
+-r ml/requirements.txt
+-r backend/requirements.txt
+matplotlib>=3.8,<4

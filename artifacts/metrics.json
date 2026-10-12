@@ -1,0 +1,46 @@
+{
+  "classification_full": {
+    "f1": 0.9908831908831909,
+    "roc_auc": 0.9998517859789535,
+    "confusion_matrix": [
+      [
+        2752,
+        16
+      ],
+      [
+        16,
+        1739
+      ]
+    ],
+    "confusion_matrix_labels": [
+      0,
+      1
+    ]
+  },
+  "classification_ui": {
+    "f1": 0.7625611382836817,
+    "roc_auc": 0.8079226569833506,
+    "confusion_matrix": [
+      [
+        1740,
+        1028
+      ],
+      [
+        40,
+        1715
+      ]
+    ],
+    "confusion_matrix_labels": [
+      0,
+      1
+    ]
+  },
+  "regression_full": {
+    "rmse": 1.0854913879233659,
+    "mae": 0.5762673175446179
+  },
+  "regression_ui": {
+    "rmse": 1.094905033389402,
+    "mae": 0.5848309554565432
+  }
+}

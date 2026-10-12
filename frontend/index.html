@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>Aqua Epoch — water check demo</title>
+  <link rel="stylesheet" href="/static/styles.css">
+  <script type="module" src="/static/app.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to water check</a>
+  <header class="page-header">
+    <h1>Aqua Epoch</h1>
+    <p class="hero-lede">Explore a water check from your readings.</p>
+    <p class="notice safety-notice">Demo only — confirm drinking safety with a lab test.</p>
+  </header>
+  <main id="main">
+    <section class="panel" aria-labelledby="measurement-heading">
+      <div class="section-header"><h2 id="measurement-heading">Your readings</h2><p id="availability" class="status status-loading" role="status" aria-live="polite">Connecting…</p></div>
+      <form id="prediction-form" novalidate>
+        <div class="selectors">
+          <div><label for="task">Task</label><select id="task" name="task"><option value="combined">Water check + pH</option><option value="classification">Water check</option><option value="regression">Estimate pH</option></select></div>
+          <div><label for="mode">Readings</label><select id="mode" name="mode"><option value="quick">Quick · 3 readings</option><option value="full">Detailed · more readings</option></select></div>
+        </div>
+        <p id="mode-help" class="callout callout-caution">Quick check cannot confirm drinking safety.</p>
+        <p class="help">Units are undocumented. Enter a number or select “Not measured”.</p>
+        <div class="actions"><button id="synthetic-example" type="button" disabled>Try example</button><button id="reset-form" type="button">Clear</button></div>
+        <p id="input-source" class="status status-neutral" role="status" aria-live="polite"></p>
+        <div id="fields" class="fields" aria-live="polite"></div>
+        <div class="history-opt-in">
+          <label class="check-label" for="save-history"><input id="save-history" type="checkbox"> Save to local history</label>
+          <p id="save-help">Readings and results stay on this server; other API users can access them.</p>
+        </div>
+        <div id="form-errors" class="error-summary" role="alert" tabindex="-1" hidden></div>
+        <div class="submit-row"><button id="submit-prediction" class="primary" type="submit" disabled>Get result</button><span id="request-status" class="status status-neutral" role="status" aria-live="polite"></span></div>
+      </form>
+      <p id="save-status" class="status status-neutral" role="status" aria-live="polite"></p>
+    </section>
+    <section id="live-results" class="panel" aria-labelledby="result-heading" hidden>
+      <h2 id="result-heading" tabindex="-1">Your result</h2>
+      <div id="result-content"></div>
+    </section>
+    <details id="history-details" class="panel disclosure">
+      <summary id="history-heading">Saved history</summary>
+      <div class="actions"><button id="refresh-history" type="button">Refresh history</button><button id="clear-history" type="button">Clear all history…</button></div>
+      <p class="help">Newest first. Saved results may include examples; they are not a water-quality timeline.</p>
+      <p id="history-status" class="status status-neutral" role="status" aria-live="polite"></p>
+      <p id="history-action-status" class="status status-neutral" role="status" aria-live="polite"></p>
+      <ul id="history-list" class="history-list" aria-live="polite"></ul>
+      <section id="recorded-result" aria-labelledby="recorded-heading" hidden>
+        <div class="section-header"><h2 id="recorded-heading" tabindex="-1">Recorded result</h2><button id="close-record" type="button">Close record</button></div>
+        <p id="record-status" class="status status-neutral" role="status" aria-live="polite"></p>
+        <div id="record-content"></div>
+      </section>
+    </details>
+    <details id="service-details" class="panel disclosure">
+      <summary id="service-heading">Service &amp; model details</summary>
+      <button id="refresh-metadata" type="button">Refresh service</button>
+      <p id="service-status" class="status status-loading" role="status" aria-live="polite">Connecting…</p>
+      <ul id="model-status" class="model-status" aria-label="Model availability"></ul>
+      <p class="help">Input ranges are engineering checks, not safe drinking-water limits. Estimated pH never replaces measured pH in a water check. <a href="/docs">API documentation</a></p>
+    </details>
+  </main>
+  <noscript><p class="notice">JavaScript is needed for the schema-driven form. API documentation is available at <a href="/docs">/docs</a>.</p></noscript>
+</body>
+</html>

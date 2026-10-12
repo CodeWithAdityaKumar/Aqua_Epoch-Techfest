@@ -1,0 +1,77 @@
+{
+  "status": "passed",
+  "scope": {
+    "transport": "real uvicorn subprocess over loopback HTTP",
+    "dataset_required": false,
+    "network_isolation_verified": false,
+    "not_tested": [
+      "public hosting",
+      "TLS",
+      "internet connectivity or latency",
+      "offline/network isolation",
+      "multi-user auth",
+      "production SLA",
+      "browser interaction"
+    ]
+  },
+  "runtime": {
+    "python": "3.12.3",
+    "numpy": "2.5.4",
+    "pandas": "3.0.6",
+    "sklearn": "1.9.1",
+    "joblib": "1.6.0"
+  },
+  "routes": {
+    "/health": 200,
+    "/": 200,
+    "/static/app.js": 200,
+    "/models": 200,
+    "/predict/full": 200,
+    "/predict/quick": 200
+  },
+  "security": {
+    "private_paths_blocked": true,
+    "invalid_input_422": true,
+    "scope": "Only the listed path probes and boolean-input rejection; not a security audit."
+  },
+  "history": {
+    "storage": "temporary isolated SQLite; removed after run",
+    "opt_in_save_and_read": true,
+    "no_implicit_save": true,
+    "actual_local_db_unchanged": true
+  },
+  "resources": {
+    "platform": "Linux-6.17.0-35-generic-x86_64-with-glibc2.39",
+    "machine": "x86_64",
+    "logical_cpu_count": 4,
+    "server_workers": 1,
+    "context": "RSS snapshots of the server process only, not peak memory. Host CPU count is not a CPU quota. No CPU utilization measurement; timings depend on this host and competing workloads.",
+    "server_rss_before_load": {
+      "bytes": 208134144,
+      "source": "ps rss (KiB)"
+    },
+    "server_rss_after_load": {
+      "bytes": 214863872,
+      "source": "ps rss (KiB)"
+    }
+  },
+  "startup_seconds": 3.0481254789992818,
+  "release_id": "d92c7561-4a48-44d5-8c51-339c743a452f",
+  "concurrency": {
+    "requests": 4,
+    "workers": 2,
+    "requested_workers": 2,
+    "all_http_200": true,
+    "elapsed_seconds": 0.29296271600105683,
+    "requests_per_second": 13.653614543857419,
+    "latency_ms": {
+      "min": 129.841445999773,
+      "mean": 142.88366000027963,
+      "p50": 144.86568500069552,
+      "p95": 151.9618239999545,
+      "max": 151.9618239999545
+    },
+    "context": "Warm /classify/quick, repeated median payload, client-observed HTTP latency excluding executor queue time; throughput includes executor overhead. p95 is nearest-rank. Small local sample, not an SLA."
+  },
+  "elapsed_seconds": 4.351590148000469
+}
