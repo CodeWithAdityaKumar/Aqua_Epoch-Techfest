@@ -167,7 +167,15 @@ if not repo.exists():
 # Install the serving dependencies matching the promoted joblib release.
 %cd /content/Aqua_Epoch
 !python -m pip install -q -r backend/requirements.txt -r artifacts/phase3/requirements-serving.txt
-!python -m pip check
+!python -m pip install -q jedi  # Colab's preinstalled IPython expects this.
+```
+
+If the clone predates the `pandas<4` serving-requirement fix, install the exact
+serving stack separately instead of combining the old files:
+
+```python
+!python -m pip install -q -r artifacts/phase3/requirements-serving.txt
+!python -m pip install -q "fastapi>=0.110,<1" "pydantic>=2,<3" "uvicorn[standard]>=0.27,<1" jedi
 ```
 
 ```python
